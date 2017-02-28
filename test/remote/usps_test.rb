@@ -225,6 +225,19 @@ class RemoteUSPSTest < ActiveSupport::TestCase
     end
   end
 
+  def test_delivery_range_when_providing_ship_date
+    response = @carrier.find_rates(
+       location_fixtures[:beverly_hills],
+       location_fixtures[:new_york],
+      Package.new(16, [12, 6, 2], :units => :imperial),
+      ship_date: Time.now
+    )
+
+    response.rates.each do |rate|
+      assert_not_empty rate.delivery_range, "Rate should have delivery range"
+    end
+  end
+
   # Uncomment and switch out SPECIAL_COUNTRIES with some other batch to see which
   # countries are currently working. Commented out here just because it's a lot of
   # hits to their server at once:

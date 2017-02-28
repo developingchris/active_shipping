@@ -374,6 +374,9 @@ module ActiveShipping
                 USPS.package_machinable?(package)
               end
               xml.Machinable(is_machinable.to_s.upcase)
+              if options[:ship_date].is_a? Time
+                xml.ShipDate(options[:ship_date].strftime("%Y-%m-%d"))
+              end
             end
           end
         end
@@ -465,10 +468,14 @@ module ActiveShipping
 
       if success
         rate_estimates = rate_hash.keys.map do |service_name|
-          RateEstimate.new(origin, destination, @@name, "USPS #{service_name}",
-                           :package_rates => rate_hash[service_name][:package_rates],
+
+        days_to_delivery = rate_hash[service_name][:commitment_name].to_i
+        days_to_deliver = nil if days_to_deliver == 0
+
+          RateEstimate.new(origin, destination, @@name, "USPS #{service_name}", :package_rates => rate_hash[service_name][:package_rates],
                            :service_code => rate_hash[service_name][:service_code],
-                           :currency => 'USD')
+                           :currency => 'USD',
+                           :delivery_range => [timestamp_from_business_day(days_to_delivery)] )
         end
         rate_estimates.reject! { |e| e.package_count != packages.length }
         rate_estimates = rate_estimates.sort_by(&:total_price)
@@ -488,6 +495,7 @@ module ActiveShipping
         %w(Service ID SvcDescription)   << INTERNATIONAL_RATE_FIELD[commercial_type]
       end
 
+
       root_node.xpath('Package').each do |package_node|
         this_package = packages[package_node['ID'].to_i]
 
@@ -501,6 +509,10 @@ module ActiveShipping
           # later packages with same service will add to them
           this_service = rate_hash[service_name] ||= {}
           this_service[:service_code] ||= service_response_node.attributes[service_code_node].value
+          if options.has_key? :ship_date
+            this_service[:commitment_date] ||= service_response_node.xpath("CommitmentDate").text
+            this_service[:commitment_name] ||= service_response_node.xpath("CommitmentName").text
+          end
           package_rates = this_service[:package_rates] ||= []
           this_package_rate = {:package => this_package,
                                :rate => Package.cents_from(rate_value(rate_node, service_response_node, commercial_type))}
