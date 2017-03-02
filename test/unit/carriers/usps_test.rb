@@ -259,7 +259,7 @@ class USPSTest < ActiveSupport::TestCase
     @carrier.expects(:commit).with(:us_rates, expected_request, false).returns(expected_request)
     @carrier.expects(:parse_rate_response)
     package = package_fixtures[:book]
-    @carrier.find_rates(location_fixtures[:beverly_hills], location_fixtures[:new_york], package, :test => true, :ship_date => Time.new(2017,2,28))
+    @carrier.find_rates(location_fixtures[:beverly_hills], location_fixtures[:new_york], package, test: true, ship_date: Time.new(2017,2,28))
   end
 
   def test_build_world_rate_request

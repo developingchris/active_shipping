@@ -229,7 +229,7 @@ class RemoteUSPSTest < ActiveSupport::TestCase
     response = @carrier.find_rates(
        location_fixtures[:beverly_hills],
        location_fixtures[:new_york],
-      Package.new(16, [12, 6, 2], :units => :imperial),
+      Package.new(16, [12, 6, 2], units: :imperial),
       ship_date: Time.now
     )
 
