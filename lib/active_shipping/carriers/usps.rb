@@ -471,7 +471,7 @@ module ActiveShipping
         rate_estimates = rate_hash.keys.map do |service_name|
 
         days_to_delivery = rate_hash[service_name][:commitment_name].to_i
-        days_to_deliver = nil if days_to_deliver == 0
+        days_to_delivery = nil if days_to_delivery == 0
 
           RateEstimate.new(origin, destination, @@name, "USPS #{service_name}", :package_rates => rate_hash[service_name][:package_rates],
                            :service_code => rate_hash[service_name][:service_code],
