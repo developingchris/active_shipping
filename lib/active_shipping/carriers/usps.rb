@@ -375,7 +375,7 @@ module ActiveShipping
                 USPS.package_machinable?(package)
               end
               xml.Machinable(is_machinable.to_s.upcase)
-              if options[:ship_date].is_a? Time
+              if options[:ship_date].is_a? Date
                 xml.ShipDate(options[:ship_date].strftime("%Y-%m-%d"))
               end
             end
