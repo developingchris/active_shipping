@@ -1,7 +1,7 @@
 module ActiveShipping
 
   # Response object class for calls to {ActiveShipping::Carrier#validate_address}.
-  # 
+  #
   # @!attribute location
   #   The Location to be validated
   #   @return [String]
@@ -17,6 +17,10 @@ module ActiveShipping
 
     def address_match?
       @validity == :valid
+    end
+
+    def valid?
+      address_match?
     end
 
     def residential?
