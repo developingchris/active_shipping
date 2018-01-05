@@ -6,6 +6,7 @@ class RemoteFedExTest < ActiveSupport::TestCase
 
   def setup
     @carrier = FedEx.new(credentials(:fedex).merge(:test => true))
+
   rescue NoCredentialsFound => e
     skip(e.message)
   end

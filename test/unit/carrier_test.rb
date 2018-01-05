@@ -127,4 +127,11 @@ class CarrierTest < ActiveSupport::TestCase
     assert_equal "1-310-285-1013", result.phone
     assert_equal "1-310-275-8159", result.fax
   end
+
+
+  test "#validate_address is not implemented" do
+    assert_raises NotImplementedError do
+      @carrier.validate_address(nil)
+    end
+  end
 end

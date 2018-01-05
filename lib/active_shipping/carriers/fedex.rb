@@ -171,6 +171,16 @@ module ActiveShipping
     end
 
 
+    def validate_address(address, options = {})
+      options = @options.update(options)
+
+      validation_request = build_validation_request(address, options)
+      response = commit(save_request(validation_request), (options[:test] || false))
+
+      parse_validation_response(response, options)
+    end
+
+
     # Get Shipping labels
     def create_shipment(origin, destination, packages, options = {})
       options = @options.merge(options)
@@ -290,6 +300,47 @@ module ActiveShipping
           xml.PhoneNumber(origin.phone)
         end
       end
+    end
+
+    def build_validation_request(destination, options={})
+      xml_builder = Nokogiri::XML::Builder.new do |xml|
+        xml.AddressValidationRequest(xmlns: 'http://fedex.com/ws/addressvalidation/v2') do
+          build_request_header(xml)
+          build_version_node(xml, 'aval', 2, 0 ,0)
+
+          xml.RequestTimestamp(Time.now.iso8601(0))
+
+          xml.Options do
+            xml.VerifyAddresses('1')
+            xml.CheckResidentialStatus('1')
+            xml.MaximumNumberOfMatches( '5')
+            xml.StreetAccuracy('LOOSE')
+            xml.DirectionalAccuracy('LOOSE')
+            xml.CompanyNameAccuracy('LOOSE')
+            xml.ConvertToUpperCase('1')
+            xml.RecognizeAlternateCityNames('1')
+            xml.ReturnParsedElements('1')
+          end
+
+          xml.AddressesToValidate do
+
+            xml.Address do
+              xml.StreetLines(destination.address1)
+              xml.StreetLines(destination.address2) if destination.address2
+              xml.StreetLines(destination.address3) if destination.address3
+              # xml.City(destination.city)
+              # xml.StateOrProvinceCode(destination.state)
+              xml.PostalCode(destination.postal_code)
+              # xml.CountryCode(destination.country_code(:alpha2))
+              # xml.Residential(1) unless destination.commercial?
+              xml.CompanyName(destination.company_name) if destination.company_name
+            end
+          end
+        end
+
+      end
+
+      xml_builder.to_xml
     end
 
     def build_rate_request(origin, destination, packages, options = {})
@@ -476,6 +527,40 @@ module ActiveShipping
       end
     end
 
+
+    def parse_validation_response(response, options)
+      success, message = nil
+
+      xml = build_document(response, "AddressValidationReply")
+
+      success = response_success?(xml)
+      # message = response_message(xml)
+      message = ""
+
+      if success
+
+        address_details = xml.at("AddressResults").at("ProposedAddressDetails")
+
+        options = {}
+        options[:validation_result] = address_details
+
+        if address_details.at("DeliveryPointValidation").text == "CONFIRMED"
+                options[:validity] = :valid
+        else
+                options[:validity] = :invalid
+        end
+
+        options[:classification] = address_details.at("ResidentialStatus").text.downcase.to_sym
+
+        return AddressValidationResponse.new(success,
+                                             message,
+                                             Hash.from_xml(response),
+                                             options
+                                            )
+      end
+
+    end
+
     def parse_rate_response(origin, destination, packages, response, options)
       xml = build_document(response, 'RateReply')
 
@@ -499,12 +584,12 @@ module ActiveShipping
             currency = rated_shipment.at('RatedShipmentDetails/ShipmentRateDetail/TotalNetCharge/Currency').text
 
             RateEstimate.new(origin, destination, @@name,
-                 self.class.service_name_for_code(service_type),
-                 :service_code => service_code,
-                 :total_price => rated_shipment.at('RatedShipmentDetails/ShipmentRateDetail/TotalNetCharge/Amount').text.to_f,
-                 :currency => currency,
-                 :packages => packages,
-                 :delivery_range => delivery_range)
+                             self.class.service_name_for_code(service_type),
+                             :service_code => service_code,
+                             :total_price => rated_shipment.at('RatedShipmentDetails/ShipmentRateDetail/TotalNetCharge/Amount').text.to_f,
+                             :currency => currency,
+                             :packages => packages,
+                             :delivery_range => delivery_range)
           rescue NoMethodError
             missing_xml_field = true
             nil
@@ -601,30 +686,30 @@ module ActiveShipping
 
         all_tracking_details = xml.root.xpath('CompletedTrackDetails/TrackDetails')
         tracking_details = case all_tracking_details.length
-          when 1
-            all_tracking_details.first
-          when 0
-            message = "The response did not contain tracking details"
-            return TrackingResponse.new(
-              false,
-              message,
-              Hash.from_xml(response),
-              carrier: @@name,
-              xml: response,
-              request: last_request
-            )
-          else
-            all_unique_identifiers = xml.root.xpath('CompletedTrackDetails/TrackDetails/TrackingNumberUniqueIdentifier').map(&:text)
-            message = "Multiple matches were found. Specify a unqiue identifier: #{all_unique_identifiers.join(', ')}"
-            return TrackingResponse.new(
-              false,
-              message,
-              Hash.from_xml(response),
-              carrier: @@name,
-              xml: response,
-              request: last_request
-            )
-        end
+                           when 1
+                             all_tracking_details.first
+                           when 0
+                             message = "The response did not contain tracking details"
+                             return TrackingResponse.new(
+                               false,
+                               message,
+                               Hash.from_xml(response),
+                               carrier: @@name,
+                               xml: response,
+                               request: last_request
+                             )
+                           else
+                             all_unique_identifiers = xml.root.xpath('CompletedTrackDetails/TrackDetails/TrackingNumberUniqueIdentifier').map(&:text)
+                             message = "Multiple matches were found. Specify a unqiue identifier: #{all_unique_identifiers.join(', ')}"
+                             return TrackingResponse.new(
+                               false,
+                               message,
+                               Hash.from_xml(response),
+                               carrier: @@name,
+                               xml: response,
+                               request: last_request
+                             )
+                           end
 
         first_notification = tracking_details.at('Notification')
         severity = first_notification.at('Severity').text
@@ -655,12 +740,12 @@ module ActiveShipping
         end
 
         origin = if origin_node = tracking_details.at('OriginLocationAddress')
-          Location.new(
-            country: origin_node.at('CountryCode').text,
-            province: origin_node.at('StateOrProvinceCode').text,
-            city: origin_node.at('City').text
-          )
-        end
+                   Location.new(
+                     country: origin_node.at('CountryCode').text,
+                     province: origin_node.at('StateOrProvinceCode').text,
+                     city: origin_node.at('City').text
+                   )
+                 end
 
         destination = extract_address(tracking_details, DELIVERY_ADDRESS_NODE_NAMES)
         shipper_address = extract_address(tracking_details, SHIPPER_ADDRESS_NODE_NAMES)

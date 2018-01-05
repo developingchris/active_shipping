@@ -587,7 +587,7 @@ class FedExTest < ActiveSupport::TestCase
   end
 
   ### create_shipment
-  
+
   def test_create_shipment
     confirm_response = xml_fixture('fedex/create_shipment_response')
     @carrier.stubs(:commit).returns(confirm_response)
@@ -678,4 +678,32 @@ class FedExTest < ActiveSupport::TestCase
   def test_maximum_address_field_length
     assert_equal 35, @carrier.maximum_address_field_length
   end
+
+
+  def test_validate_address
+    location = Location.new(
+      name:     'Geoff Anton',
+      company:  'stamps.com',
+      address1: '12959 Coral Tree Pl',
+      address2: 'APT 4',
+      city:     'Los Angeles',
+      state:    'CA',
+      zip:      '90066'
+    )
+
+    cleansed_address = @carrier.validate_address(location)
+
+
+    assert_equal true, cleansed_address.address_match?
+    assert_equal true, cleansed_address.city_state_zip_ok?
+    assert_equal 'GEOFF ANTON', cleansed_address.address.name
+    assert_equal 'STAMPS.COM', cleansed_address.address.company
+    assert_equal '12959 CORAL TREE PL', cleansed_address.address.address1
+    assert_equal 'LOS ANGELES', cleansed_address.address.city
+    assert_equal 'CA', cleansed_address.address.state
+    assert_equal '90066-7020', cleansed_address.address.zip
+    assert_equal '7SWYAzuNh82cWhIQyRFXRNa71HFkZWFkYmVlZg==20100210', cleansed_address.cleanse_hash
+    assert_equal 'Tdwp4JlTc02DhscYxbI7l7o08apkZWFkYmVlZg==20100210', cleansed_address.override_hash
+  end
+
 end

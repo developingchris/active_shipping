@@ -92,6 +92,11 @@ module ActiveShipping
       raise NotImplementedError, "#find_tracking_info is not supported by #{self.class.name}."
     end
 
+
+    def validate_address(address, options = {})
+      raise NotImplementedError, "#validate_address is not supported by #{self.class.name}."
+    end
+
     # Get a list of services available for the a specific route
     #
     # @param origin_country_code [String] The country of origin
