@@ -1292,7 +1292,6 @@ validate_string_length	lib/active_shipping/external_return_label_request.rb	/^  
 validate_total_weight	lib/active_shipping/shipment_packer.rb	/^      def validate_total_weight(items, maximum_weight)$/;"	f	class:ActiveShipping.ShipmentPacker
 value	lib/active_shipping/carriers/new_zealand_post.rb	/^      def value$/;"	f	class:ActiveShipping.NewZealandPost.NewZealandPostPackage
 verify_or_raise_required	lib/active_shipping/external_return_label_request.rb	/^    def verify_or_raise_required$/;"	f	class:ActiveShipping.ExternalReturnLabelRequest
-version.rb	lib/active_shipping/version.rb	1;"	F
 void_shipment	lib/active_shipping/carriers/ups.rb	/^    def void_shipment(tracking, options={})$/;"	f	class:ActiveShipping
 weight	lib/active_shipping/carriers/correios.rb	/^      def weight$/;"	f	class:ActiveShipping.Correios.CorreiosPackage
 weight	lib/active_shipping/carriers/new_zealand_post.rb	/^      def weight$/;"	f	class:ActiveShipping.NewZealandPost.NewZealandPostPackage
