@@ -172,9 +172,9 @@ module ActiveShipping
     #
     # @param days [Integer] The number of business days from now.
     # @return [DateTime] A timestamp, the provided number of business days in the future.
-    def timestamp_from_business_day(days)
+    def timestamp_from_business_day(days, base = DateTime.now.utc)
       return unless days
-      date = DateTime.now.utc
+      date = base
 
       days.times do
         date += 1.day

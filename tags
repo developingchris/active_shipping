@@ -180,7 +180,6 @@ address_match?	lib/active_shipping/address_validation_response.rb	/^    def addr
 address_override_notification=	lib/active_shipping/external_return_label_request.rb	/^    def address_override_notification=(v)$/;"	f	class:ActiveShipping.ExternalReturnLabelRequest
 address_type=	lib/active_shipping/location.rb	/^    def address_type=(value)$/;"	f
 address_validation=	lib/active_shipping/external_return_label_request.rb	/^    def address_validation=(v)$/;"	f	class:ActiveShipping.ExternalReturnLabelRequest
-address_validation_response.rb	lib/active_shipping/address_validation_response.rb	1;"	F
 all	lib/active_shipping/carriers.rb	/^    def all$/;"	f	class:ActiveShipping.Carriers
 all_credentials	test/test_helper.rb	/^    def all_credentials$/;"	f	class:ActiveShipping.Credentials
 allow_package_level_reference_numbers	lib/active_shipping/carriers/ups.rb	/^    def allow_package_level_reference_numbers(origin, destination)$/;"	f
@@ -1251,7 +1250,7 @@ test_zip_to_zip	test/remote/stamps_test.rb	/^  def test_zip_to_zip$/;"	f	class:R
 test_zip_to_zip	test/remote/usps_test.rb	/^  def test_zip_to_zip$/;"	f	class:RemoteUSPSTest
 test_zip_to_zip_fails	test/remote/fedex_test.rb	/^  def test_zip_to_zip_fails$/;"	f	class:RemoteFedExTest
 time_of_occurrence	lib/active_shipping/carriers/canada_post_pws.rb	/^    def time_of_occurrence(occurrence)$/;"	f
-timestamp_from_business_day	lib/active_shipping/carrier.rb	/^    def timestamp_from_business_day(days)$/;"	f	class:ActiveShipping.Carrier
+timestamp_from_business_day	lib/active_shipping/carrier.rb	/^    def timestamp_from_business_day(days, base = DateTime.now.utc)$/;"	f	class:ActiveShipping.Carrier
 to_bool	lib/active_shipping/external_return_label_request.rb	/^    def to_bool(v, default = false)$/;"	f	class:ActiveShipping.ExternalReturnLabelRequest
 to_hash	lib/active_shipping/location.rb	/^    def to_hash$/;"	f
 to_s	lib/active_shipping/location.rb	/^    def to_s$/;"	f
@@ -1271,12 +1270,12 @@ upsified_location	lib/active_shipping/carriers/ups.rb	/^    def upsified_locatio
 url	lib/active_shipping/carriers/australia_post.rb	/^      def url$/;"	f	class:ActiveShipping.AustraliaPost.CombinedResponse.AustraliaPostRequest
 url	lib/active_shipping/carriers/new_zealand_post.rb	/^      def url(package)$/;"	f	class:ActiveShipping.NewZealandPost.RateRequest
 us_rates	lib/active_shipping/carriers/usps.rb	/^    def us_rates(origin, destination, packages, options = {})$/;"	f	class:ActiveShipping
-usps.rb	lib/active_shipping/carriers/usps.rb	1;"	F
 usps_returns.rb	lib/active_shipping/carriers/usps_returns.rb	1;"	F
 usps_returns_test.rb	test/remote/usps_returns_test.rb	1;"	F
 usps_returns_test.rb	test/unit/carriers/usps_returns_test.rb	1;"	F
 usps_test.rb	test/remote/usps_test.rb	1;"	F
 usps_test.rb	test/unit/carriers/usps_test.rb	1;"	F
+valid?	lib/active_shipping/address_validation_response.rb	/^    def valid?$/;"	f	class:ActiveShipping.AddressValidationResponse
 valid_credentials?	lib/active_shipping/carrier.rb	/^    def valid_credentials?$/;"	f	class:ActiveShipping.Carrier
 valid_credentials?	lib/active_shipping/carriers/kunaki.rb	/^    def valid_credentials?$/;"	f	class:ActiveShipping.Kunaki
 valid_credentials?	lib/active_shipping/carriers/shipwire.rb	/^    def valid_credentials?$/;"	f	class:ActiveShipping.Shipwire

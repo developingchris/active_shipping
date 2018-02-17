@@ -474,10 +474,15 @@ module ActiveShipping
         days_to_delivery = rate_hash[service_name][:commitment_name].to_i
         days_to_delivery = nil if days_to_delivery == 0
 
+          ship_date = DateTime.now.utc
+          if options.has_key? :ship_date
+            ship_date = Date.parse(options[:ship_date].to_s).to_datetime
+          end
+
           RateEstimate.new(origin, destination, @@name, "USPS #{service_name}", :package_rates => rate_hash[service_name][:package_rates],
                            :service_code => rate_hash[service_name][:service_code],
                            :currency => 'USD',
-                           :delivery_range => [timestamp_from_business_day(days_to_delivery)] )
+                           :delivery_range => [timestamp_from_business_day(days_to_delivery, ship_date )] )
         end
         rate_estimates.reject! { |e| e.package_count != packages.length }
         rate_estimates = rate_estimates.sort_by(&:total_price)
